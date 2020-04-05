@@ -10,11 +10,6 @@ class PatientPostRq(BaseModel):
     surname: str
 
 
-class PatientPostResp(BaseModel):
-    id: int
-    patient: dict
-
-
 @app.get("/")
 def hello_world():
     return {"message": "Hello World during the coronavirus pandemic!"}
@@ -43,4 +38,4 @@ def delete_method():
 @app.post("/patient")
 def patient_post(rq: PatientPostRq):
     app.counter += 1
-    return PatientPostResp(id=app.counter, patient=rq.dict())
+    return {"id": app.counter, "patient": rq.dict()}
