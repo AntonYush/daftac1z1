@@ -43,15 +43,15 @@ def delete_method():
 
 @app.post("/patient", response_model=PatientPostResp)
 def patient_post(rq: PatientPostRq):
-    app.counter += 1
+    response = PatientPostResp(id=app.counter, patient=rq.dict())
     patients[app.counter] = rq.dict()
-    return PatientPostResp(id=app.counter, patient=rq.dict())
+    app.counter += 1
+    return response
 
 
 @app.get("/patient/{patient_id}")
 def patient_get(patient_id):
     patient_id = int(patient_id)
     if patient_id in patients.keys():
-        return {"name": patients[patient_id]["name"],
-                "surename": patients[patient_id]["surename"]}
+        return patients[patient_id]
     raise HTTPException(status_code=404, detail="Not found")
