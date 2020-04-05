@@ -7,7 +7,7 @@ app.counter = 0
 
 class PatientPostRq(BaseModel):
     name: str
-    surname: str
+    surename: str
 
 
 class PatientPostResp(BaseModel):
