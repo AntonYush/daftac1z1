@@ -1,8 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 app = FastAPI()
 app.counter = 0
+patients = dict()
 
 
 class PatientPostRq(BaseModel):
@@ -43,13 +44,14 @@ def delete_method():
 @app.post("/patient", response_model=PatientPostResp)
 def patient_post(rq: PatientPostRq):
     app.counter += 1
-    print("Before")
     patients[app.counter] = rq.dict()
-    print("After")
     return PatientPostResp(id=app.counter, patient=rq.dict())
 
 
 @app.get("/patient/{patient_id}")
 def patient_get(patient_id):
     patient_id = int(patient_id)
-    return {"id": patient_id, "all_ids": str(patients.keys())}
+    if patient_id in patients.keys():
+        return {"name": patients[patient_id]["name"],
+                "surename": patients[patient_id]["surename"]}
+    raise HTTPException(status_code=404, detail="Not found")
