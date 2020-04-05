@@ -51,5 +51,6 @@ def patient_post(rq: PatientPostRq):
 def patient_get(patient_id):
     patient_id = int(patient_id)
     if patient_id in patients.keys():
-        return patients[patient_id]
+        return {"name": patients[patient_id]["name"],
+                "surename": patients[patient_id]["surename"]}
     raise HTTPException(status_code=404, detail="Not found")
