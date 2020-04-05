@@ -41,6 +41,6 @@ def delete_method():
 
 
 @app.post("/patient", response_model=PatientPostResp)
-def patient_post(rq: PatientPostRq):
+def patient_post(rq):
     app.counter += 1
-    return PatientPostResp(id=app.counter, patient=rq.dict())
+    return PatientPostResp(id=app.counter, patient=rq)
