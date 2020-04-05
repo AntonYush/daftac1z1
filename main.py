@@ -50,7 +50,4 @@ def patient_post(rq: PatientPostRq):
 @app.get("/patient/{patient_id}")
 def patient_get(patient_id):
     patient_id = int(patient_id)
-    if patient_id in patients.keys():
-        return {"name": patients[patient_id]["name"],
-                "surename": patients[patient_id]["surename"]}
-    raise HTTPException(status_code=404, detail="Not found")
+    return {"id": patient_id, "all_ids": str(patients.keys())}
