@@ -54,4 +54,4 @@ def patient_get(patient_id):
     patient_id = int(patient_id)
     if patient_id in patients.keys():
         return patients[patient_id]
-    raise HTTPException(status_code=404, detail="Not found")
+    raise HTTPException(status_code=204)
