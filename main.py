@@ -1,4 +1,5 @@
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Cookie
+from fastapi.responses import RedirectResponse, JSONResponse
 from pydantic import BaseModel
 
 app = FastAPI()
@@ -45,3 +46,12 @@ def patient_get(patient_id):
     if patient_id in patients.keys():
         return patients[patient_id]
     raise HTTPException(status_code=204)
+
+
+@app.post("/login")
+def login(request: Request):
+    response = RedirectResponse("/welcome", status_code=200)
+    lap = request.headers["Authorization"][6:]
+    response.set_cookie(key="session_token", value=lap)
+    return response
+
