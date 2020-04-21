@@ -55,11 +55,6 @@ def patient_get(request: Request, patient_id: int):
     raise HTTPException(status_code=204)
 
 
-class LoginRq(BaseModel):
-    login: str
-    password: str
-
-
 @app.post("/login")
 def login(request: Request):
     response = Response()
