@@ -49,13 +49,8 @@ def patient_get(patient_id):
     raise HTTPException(status_code=204)
 
 
-class LoginRq(BaseModel):
-    login: str
-    password: str
-
-
 @app.post("/login")
 def login(request: Request):
-    response = RedirectResponse("/welcome")
+    response = RedirectResponse("/welcome", status_code=302)
     response.set_cookie(key="session_token", value=request.headers["Authorization"][5:])
     return response
