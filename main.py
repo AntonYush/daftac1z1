@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
 
 app = FastAPI()
@@ -17,28 +17,18 @@ class PatientPostResp(BaseModel):
 
 
 @app.get("/")
-def hello_world():
+def main_page():
     return {"message": "Hello World during the coronavirus pandemic!"}
 
 
-@app.get("/method")
-def get_method():
-    return {"method": "GET"}
+@app.get("/welcome")
+def welcome_page():
+    return {"message": "Welcome there!"}
 
 
-@app.post("/method")
-def post_method():
-    return {"method": "POST"}
-
-
-@app.put("/method")
-def put_method():
-    return {"method": "PUT"}
-
-
-@app.delete("/method")
-def delete_method():
-    return {"method": "DELETE"}
+@app.api_route(path="/method", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
+def method_check(request: Request):
+    return {"method": request.method}
 
 
 @app.post("/patient", response_model=PatientPostResp)
