@@ -49,8 +49,8 @@ def patient_get(patient_id):
     raise HTTPException(status_code=204)
 
 
-@app.post("/login")
+@app.post("/login", status_code=303)
 def login(request: Request):
-    response = RedirectResponse("/welcome", status_code=303)
+    response = RedirectResponse("/welcome")
     response.set_cookie(key="session_token", value=request.headers["Authorization"][5:])
     return response
