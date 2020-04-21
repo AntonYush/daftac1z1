@@ -1,10 +1,11 @@
-from fastapi import FastAPI, HTTPException, Request, Cookie, status
-from fastapi.responses import Response
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import  Response
 from hashlib import sha256
 from pydantic import BaseModel
 
 app = FastAPI()
 app.counter = 0
+app.sessions = []
 patients = dict()
 
 
@@ -25,7 +26,9 @@ def main_page():
 
 @app.get("/welcome")
 def welcome_page(request: Request):
-    if not request.cookies.get("session_token"):
+    if request.cookies.get("session_token") != sha256(bytes("trudnY:PaC13Nt", "utf-8")).hexdigest():
+        print(sha256(bytes("trudnY:PaC13Nt", "utf-8")).hexdigest())
+        print(request.cookies.get("session_token"))
         raise HTTPException(status_code=401)
     return {"message": "Welcome there!"}
 
@@ -62,4 +65,5 @@ def login(request: Request):
     response.status_code = 303
     response.headers["Location"] = "/welcome"
     response.set_cookie(key="session_token", value=request.headers["Authorization"][5:])
+    app.sessions.append(request.headers["Authorization"][5:])
     return response
