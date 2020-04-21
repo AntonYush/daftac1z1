@@ -56,7 +56,7 @@ class LoginRq(BaseModel):
 
 @app.post("/login")
 def login(request: Request):
-    response = RedirectResponse(url="/welcome", status_code=status.HTTP_303_SEE_OTHER)
+    response = RedirectResponse(url="/welcome", status_code=status.HTTP_302_FOUND)
     response.set_cookie(key="session_token", value=request.headers["Authorization"][5:])
     return response
 
