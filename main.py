@@ -24,7 +24,9 @@ def main_page():
 
 
 @app.get("/welcome")
-def welcome_page():
+def welcome_page(request: Request):
+    if not request.cookies.get("session_token"):
+        raise HTTPException(status_code=401)
     return {"message": "Welcome there!"}
 
 
