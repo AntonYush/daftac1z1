@@ -25,7 +25,9 @@ def main_page():
 
 @app.get("/welcome")
 def welcome_page(request: Request):
-    if not request.cookies.get("session_token"):
+    if request.cookies.get("session_token") != sha256(bytes("trudnY:PaC13Nt", "utf-8")).hexdigest():
+        print(sha256(bytes("trudnY:PaC13Nt", "utf-8")).hexdigest())
+        print(request.cookies.get("session_token"))
         raise HTTPException(status_code=401)
     return {"message": "Welcome there!"}
 
