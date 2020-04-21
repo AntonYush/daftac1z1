@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, Request, Cookie, status
-from fastapi.responses import RedirectResponse
+from fastapi.responses import Response
 from hashlib import sha256
 from pydantic import BaseModel
 
@@ -58,8 +58,8 @@ class LoginRq(BaseModel):
 
 @app.post("/login")
 def login(request: Request):
-    response = RedirectResponse(url="/welcome", status_code=200)
+    response = Response()
     response.status_code = 303
+    response.headers["Location"] = "/welcome"
     response.set_cookie(key="session_token", value=request.headers["Authorization"][5:])
     return response
-
