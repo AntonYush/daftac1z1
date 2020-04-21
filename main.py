@@ -27,7 +27,7 @@ def main_page():
 @app.get("/welcome")
 def welcome_page(request: Request):
     print(request.cookies)
-    print(app.session)
+    print(app.sessions)
     if request.cookies.get("session_token") not in app.sessions:
         print("if there")
         raise HTTPException(status_code=401)
