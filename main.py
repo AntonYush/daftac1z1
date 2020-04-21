@@ -1,5 +1,5 @@
-from fastapi import FastAPI, HTTPException, Request, Cookie, Response
-from fastapi.responses import RedirectResponse, JSONResponse
+from fastapi import FastAPI, HTTPException, Request, Cookie, status
+from fastapi.responses import RedirectResponse
 from hashlib import sha256
 from pydantic import BaseModel
 
@@ -49,8 +49,14 @@ def patient_get(patient_id):
     raise HTTPException(status_code=204)
 
 
+class LoginRq(BaseModel):
+    login: str
+    password: str
+
+
 @app.post("/login")
 def login(request: Request):
-    response = Response("/welcome")
+    response = RedirectResponse(url="/welcome", status_code=status.HTTP_303_SEE_OTHER)
     response.set_cookie(key="session_token", value=request.headers["Authorization"][5:])
     return response
+
