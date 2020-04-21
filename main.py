@@ -82,10 +82,8 @@ def patient_get(patient_id):
 
 
 @app.post("/login")
-def login(request: LoginRq):
+def login(request: Request):
     response = RedirectResponse("/welcome", status_code=200)
-    cookie_v = sha256(bytes("{}:{}".format(request.dict()["login"], request.dict()["password"]), "utf-8")).hexdigest()
-    response.headers["Authorization"] = "Base " + cookie_v
-    response.set_cookie(key="session_token", value=cookie_v)
+    response.set_cookie(key="session_token", value=request.headers["Authorization"][5:])
     return response
 
