@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 app = FastAPI()
 app.counter = 0
-app.sessions = ["admin"]
+app.sessions = []
 patients = dict()
 
 
