@@ -12,12 +12,7 @@ templates = Jinja2Templates(directory="templates")
 
 class PatientPostRq(BaseModel):
     name: str
-    surename: str
-
-
-class PatientPostResp(BaseModel):
-    id: int
-    patient: dict
+    surname: str
 
 
 @app.get("/")
@@ -43,19 +38,32 @@ def method_check(request: Request):
     return {"method": request.method}
 
 
-@app.post("/patient", response_model=PatientPostResp)
+@app.post("/patient")
 def patient_post(request: Request, data: PatientPostRq):
     if request.cookies.get("session_token") is None or \
             request.cookies.get("session_token") not in app.users.values():
         raise HTTPException(status_code=401)
-    response = PatientPostResp(id=app.counter, patient=data.dict())
+    response = Response()
+    response.status_code = 303
+    response.headers["Location"] = f"/patient/{app.counter}"
     app.patients[app.counter] = data.dict()
     app.counter += 1
     return response
 
 
+@app.get("/patient")
+def patient_get(request: Request):
+    if request.cookies.get("session_token") is None or \
+            request.cookies.get("session_token") not in app.users.values():
+        raise HTTPException(status_code=401)
+    result = dict()
+    for patient_id in app.patients.keys():
+        result[f"id_{patient_id}"] = app.patients[patient_id]
+    return result
+
+
 @app.get("/patient/{patient_id}")
-def patient_get(request: Request, patient_id: int):
+def patient_get_id(request: Request, patient_id: int):
     if request.cookies.get("session_token") is None or \
             request.cookies.get("session_token") not in app.users.values():
         raise HTTPException(status_code=401)
@@ -64,9 +72,14 @@ def patient_get(request: Request, patient_id: int):
     raise HTTPException(status_code=204)
 
 
-class LoginRq(BaseModel):
-    login: str
-    password: str
+@app.delete("/patient/{patient_id}")
+def patient_delete_id(request: Request, patient_id: int):
+    if request.cookies.get("session_token") is None or \
+            request.cookies.get("session_token") not in app.users.values():
+        raise HTTPException(status_code=401)
+    if patient_id in app.patients.keys():
+        del app.patients[patient_id]
+    return Response()
 
 
 @app.post("/login")
