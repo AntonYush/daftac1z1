@@ -57,6 +57,7 @@ def patient_get(request: Request, patient_id: int):
 
 @app.post("/login")
 def login(request: Request):
+    print(request.headers["Authorization"]);
     response = Response()
     response.status_code = 303
     response.headers["Location"] = "/welcome"
