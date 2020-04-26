@@ -28,10 +28,10 @@ def main_page():
 def welcome_page(request: Request):
     if request.cookies.get("session_token") is None or \
             request.cookies.get("session_token") not in app.users:
-        print(request.cookies)
-        print(request.cookies.get("session_token"))
-        print(app.users[0])
         raise HTTPException(status_code=401)
+    print(request.cookies)
+    print(request.cookies.get("session_token"))
+    print(app.users[0])
     return {"message": "Welcome there!"}
 
 
