@@ -44,7 +44,7 @@ def patient_post(request: Request, data: PatientPostRq):
             request.cookies.get("session_token") not in app.users.values():
         raise HTTPException(status_code=401)
     response = Response()
-    response.status_code = 303
+    response.status_code = 301
     response.headers["Location"] = f"/patient/{app.counter}"
     app.patients[app.counter] = data.dict()
     app.counter += 1
