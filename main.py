@@ -28,9 +28,9 @@ def main_page():
 def welcome_page(request: Request):
     if request.cookies.get("session_token") is None or \
             request.cookies.get("session_token") not in app.users:
-        #print(request.cookies)
-        #print(request.cookies.get("session_token"))
-        #print(app.users[0])
+        print(request.cookies)
+        print(request.cookies.get("session_token"))
+        print(app.users[0])
         raise HTTPException(status_code=401)
     return {"message": "Welcome there!"}
 
@@ -69,7 +69,7 @@ class LoginRq(BaseModel):
 @app.post("/login")
 def login(request: Request):
     if request.headers.get("Authorization").split()[1] not in app.users:
-        return HTTPException(status_code=403)
+        raise HTTPException(status_code=403)
     response = Response()
     response.status_code = 303
     response.headers["Location"] = "/welcome"
