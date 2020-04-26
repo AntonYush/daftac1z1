@@ -1,12 +1,13 @@
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import Response
-from hashlib import sha256
+from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
 app = FastAPI()
 app.counter = 0
-app.users = ["dHJ1ZG5ZOlBhQzEzTnQ="]
-patients = dict()
+app.users = {"trudnY": "dHJ1ZG5ZOlBhQzEzTnQ="}
+app.patients = dict()
+templates = Jinja2Templates(directory="templates")
 
 
 class PatientPostRq(BaseModel):
@@ -27,12 +28,14 @@ def main_page():
 @app.get("/welcome")
 def welcome_page(request: Request):
     if request.cookies.get("session_token") is None or \
-            request.cookies.get("session_token") not in app.users:
+            request.cookies.get("session_token") not in app.users.values():
         raise HTTPException(status_code=401)
-    print(request.cookies)
-    print(request.cookies.get("session_token"))
-    print(app.users[0])
-    return {"message": "Welcome there!"}
+    username = "there"
+    for key in app.users.keys():
+        if app.users[key] == request.cookies.get("session_token"):
+            username = key
+            break
+    return templates.TemplateResponse("welcome.html", {"request": request, "username": username})
 
 
 @app.api_route(path="/method", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
@@ -43,10 +46,10 @@ def method_check(request: Request):
 @app.post("/patient", response_model=PatientPostResp)
 def patient_post(request: Request, data: PatientPostRq):
     if request.cookies.get("session_token") is None or \
-            request.cookies.get("session_token") not in app.users:
+            request.cookies.get("session_token") not in app.users.values():
         raise HTTPException(status_code=401)
     response = PatientPostResp(id=app.counter, patient=data.dict())
-    patients[app.counter] = data.dict()
+    app.patients[app.counter] = data.dict()
     app.counter += 1
     return response
 
@@ -54,10 +57,10 @@ def patient_post(request: Request, data: PatientPostRq):
 @app.get("/patient/{patient_id}")
 def patient_get(request: Request, patient_id: int):
     if request.cookies.get("session_token") is None or \
-            request.cookies.get("session_token") not in app.users:
+            request.cookies.get("session_token") not in app.users.values():
         raise HTTPException(status_code=401)
-    if patient_id in patients.keys():
-        return patients[patient_id]
+    if patient_id in app.patients.keys():
+        return app.patients[patient_id]
     raise HTTPException(status_code=204)
 
 
@@ -68,7 +71,7 @@ class LoginRq(BaseModel):
 
 @app.post("/login")
 def login(request: Request):
-    if request.headers.get("Authorization").split()[1] not in app.users:
+    if request.headers.get("Authorization").split()[1] not in app.users.values():
         raise HTTPException(status_code=401)
     response = Response()
     response.status_code = 303
