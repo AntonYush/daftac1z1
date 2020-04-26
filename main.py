@@ -69,7 +69,7 @@ class LoginRq(BaseModel):
 @app.post("/login")
 def login(request: Request):
     if request.headers.get("Authorization").split()[1] not in app.users:
-        raise HTTPException(status_code=403)
+        raise HTTPException(status_code=401)
     response = Response()
     response.status_code = 303
     response.headers["Location"] = "/welcome"
