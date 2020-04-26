@@ -82,7 +82,7 @@ def patient_delete_id(request: Request, patient_id: int):
     else:
         raise HTTPException(status_code=204)
     response = Response()
-    response.status_code = 301
+    response.status_code = 303
     response.headers["Location"] = "/welcome"
     return response
 
