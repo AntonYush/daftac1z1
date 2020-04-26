@@ -80,7 +80,7 @@ def patient_delete_id(request: Request, patient_id: int):
     if patient_id in app.patients.keys():
         del app.patients[patient_id]
     response = Response()
-    response.status_code = 303
+    response.status_code = 301
     response.headers["Location"] = "/welcome"
     return response
 
