@@ -79,7 +79,10 @@ def patient_delete_id(request: Request, patient_id: int):
         raise HTTPException(status_code=401)
     if patient_id in app.patients.keys():
         del app.patients[patient_id]
-    return Response()
+    response = Response()
+    response.status_code = 303
+    response.headers["Location"] = "/welcome"
+    return response
 
 
 @app.post("/login")
