@@ -104,22 +104,27 @@ def logout():
     return response
 
 
-def row_factory(cursor, x):
-    return {"TrackId": int(x[0]),
-            "Name": str(x[1]),
-            "AlbumId": int(x[2]),
-            "MediaTypeId": int(x[3]),
-            "GenreId": int(x[4]),
-            "Composer": str(x[5]),
-            "Milliseconds": int(x[6]),
-            "Bytes": int(x[7]),
-            "UnitPrice": float(x[8])}
+class RowFactories(object):
+    @staticmethod
+    def tracks_get(cursor, x):
+        return {"TrackId": int(x[0]),
+                "Name": str(x[1]),
+                "AlbumId": int(x[2]),
+                "MediaTypeId": int(x[3]),
+                "GenreId": int(x[4]),
+                "Composer": str(x[5]),
+                "Milliseconds": int(x[6]),
+                "Bytes": int(x[7]),
+                "UnitPrice": float(x[8])}
+
+    @staticmethod
+    def composers_data_get(cursor, x):
+        return str(x[0])
 
 
 @app.on_event("startup")
 async def startup():
     app.db_connection = await aiosqlite.connect('./dbs/chinook.db')
-    app.db_connection.row_factory = row_factory
 
 
 @app.on_event("shutdown")
@@ -129,7 +134,19 @@ async def shutdown():
 
 @app.get("/tracks")
 async def tracks_get(page: int = 0, per_page: int = 10):
+    app.db_connection.row_factory = RowFactories.tracks_get
     cursor = await app.db_connection.execute(
         f"SELECT * FROM tracks LIMIT {per_page} OFFSET {page*per_page}")
+    data = await cursor.fetchall()
+    return data
+
+
+@app.get("/tracks/composers")
+async def composers_tracks_get(composer: str = None):
+    if not composer:
+        raise HTTPException(status_code=404, detail={"error": "Composer needed!"})
+    app.db_connection.row_factory = RowFactories.composers_data_get
+    cursor = await app.db_connection.execute(
+        f"SELECT name FROM tracks WHERE composer = {composer} ORDER BY name")
     data = await cursor.fetchall()
     return data
