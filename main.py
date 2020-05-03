@@ -206,6 +206,6 @@ async def customer_put(customer_id: int, data: CustomerPutRq):
         await app.db_connection.execute(
             f"UPDATE customers SET {key} = ? WHERE customerid = ?", (data.dict()[key], customer_id))
     await app.db_connection.commit()
-    cursor = app.db_connection.execute(
+    cursor = await app.db_connection.execute(
         f"SELECT * FROM customers WHERE customerid = ?", (customer_id, ))
     return await cursor.fetchone()
