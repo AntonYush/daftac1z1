@@ -142,9 +142,9 @@ async def tracks_get(page: int = 0, per_page: int = 10):
 
 
 @app.get("/tracks/composers")
-async def composers_tracks_get(composer: str = None):
+async def composers_tracks_get(composer_name: str = None):
     if not composer:
-        raise HTTPException(status_code=404, detail={"error": "Composer needed!"})
+        raise HTTPException(status_code=404, detail={"error": "Composer's name needed!"})
     app.db_connection.row_factory = RowFactories.composers_data_get
     cursor = await app.db_connection.execute(
         f"SELECT name FROM tracks WHERE composer = {composer} ORDER BY name")
