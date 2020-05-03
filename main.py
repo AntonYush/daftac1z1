@@ -181,3 +181,31 @@ async def album_id_get(album_id: int):
     cursor = await app.db_connection.execute(
         f"SELECT * FROM albums WHERE albumid = {album_id}")
     return await cursor.fetchone()
+
+
+class CustomerPutRq(BaseModel):
+    company: str = None
+    address: str = None
+    city: str = None
+    state: str = None
+    country: str = None
+    postalcode: str = None
+    fax: str = None
+
+
+@app.put("/customers/{customer_id}")
+async def customer_put(customer_id: int, data: CustomerPutRq):
+    app.db_connection.row_factory = RowFactories.default
+    cursor = await app.db_connection.execute(
+        f"SELECT * FROM artists WHERE artistid = '{customer_id}'")
+    if len(await cursor.fetchall()) == 0:
+        raise HTTPException(status_code=404, detail={"error": "Wrong CustomerId!"})
+    for key in data.dict().keys():
+        if data.dict()[key] is None:
+            continue
+        await app.db_connection.execute(
+            f"UPDATE customers SET {key} = ? WHERE customerid = ?", (data.dict()[key], customer_id))
+    await app.db_connection.commit()
+    cursor = app.db_connection.execute(
+        f"SELECT * FROM customers WHERE customerid = ?", (customer_id, ))
+    return await cursor.fetchone()
