@@ -168,7 +168,7 @@ async def albums_post(data: AlbumsPostRq):
         raise HTTPException(status_code=404, detail={"error": "Wrong ArtistId!"})
     cursor = await app.db_connection.execute(
         "INSERT INTO albums (title, artistid) VALUES(?, ?)", (data.dict()["title"], data.dict()["artist_id"]))
-    app.db_connection.commit()
+    await app.db_connection.commit()
     app.db_connection.row_factory = RowFactories.default
     cursor = await app.db_connection.execute(
         f"SELECT * FROM albums WHERE albumid = {cursor.lastrowid}")
