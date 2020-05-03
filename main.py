@@ -159,7 +159,7 @@ class AlbumsPostRq(BaseModel):
     artist_id: int
 
 
-@app.post("/albums")
+@app.post("/albums", status_code=201)
 async def albums_post(data: AlbumsPostRq):
     app.db_connection.row_factory = RowFactories.default
     cursor = await app.db_connection.execute(
