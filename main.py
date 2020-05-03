@@ -105,6 +105,8 @@ def logout():
 
 
 class RowFactories(object):
+    default = aiosqlite.Row
+
     @staticmethod
     def tracks_get(cursor, x):
         return {"TrackId": int(x[0]),
@@ -150,3 +152,25 @@ async def composers_tracks_get(composer_name: str = ""):
     if len(data) == 0:
         raise HTTPException(status_code=404, detail={"error": "Wrong composer's name!"})
     return data
+
+
+class AlbumsPostRq(BaseModel):
+    title: str
+    artist_id: int
+
+
+@app.post("/albums")
+async def albums_post(data: AlbumsPostRq):
+    app.db_connection.row_factory = RowFactories.default
+    cursor = await app.db_connection.execute(
+        f"SELECT * FROM artists WHERE artistid = '{data.artist_id}'")
+    if len(await cursor.fetchall()) == 0:
+        raise HTTPException(status_code=404, detail={"error": "Wrong ArtistId!"})
+    cursor = await app.db_connection.execute(
+        "INSERT INTO artists (title, artistid) VALUES(?)", (data.dict()["title"], data.dict()["artist_id"]))
+    app.db_connection.commit()
+    new_album_id = cursor.lastrowid
+    cursor = await app.db_connection.execute(
+        f"SELECT * FROM albums WHERE albumid = {new_album_id}")
+    response = Response(content=cursor.fetchone(), status_code=201)
+    return response
