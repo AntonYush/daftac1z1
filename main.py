@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import Response
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
+import aiosqlite
 
 app = FastAPI()
 app.counter = 0
@@ -84,7 +85,8 @@ def patient_delete_id(request: Request, patient_id: int):
 
 @app.post("/login")
 def login(request: Request):
-    if request.headers.get("Authorization").split()[1] not in app.users.values():
+    if request.headers.get("Authorization") is None or \
+            request.headers.get("Authorization").split()[1] not in app.users.values():
         raise HTTPException(status_code=401)
     response = Response()
     response.status_code = 303
@@ -100,3 +102,34 @@ def logout():
     response.headers["Location"] = "/"
     response.delete_cookie(key="session_token")
     return response
+
+
+def row_factory(cursor, x):
+    return {"TrackId": int(x[0]),
+            "Name": str(x[1]),
+            "AlbumId": int(x[2]),
+            "MediaTypeId": int(x[3]),
+            "GenreId": int(x[4]),
+            "Composer": str(x[5]),
+            "Milliseconds": int(x[6]),
+            "Bytes": int(x[7]),
+            "UnitPrice": float(x[8])}
+
+
+@app.on_event("startup")
+async def startup():
+    app.db_connection = await aiosqlite.connect('./dbs/chinook.db')
+    app.db_connection.row_factory = row_factory
+
+
+@app.on_event("shutdown")
+async def shutdown():
+    await app.db_connection.close()
+
+
+@app.get("/tracks")
+async def tracks_get(page: int = 0, per_page: int = 10):
+    cursor = await app.db_connection.execute(
+        f"SELECT * FROM tracks LIMIT {per_page} OFFSET {page}")
+    data = await cursor.fetchall()
+    return data
