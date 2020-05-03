@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import Response
+from fastapi.responses import Response, JSONResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 import aiosqlite
@@ -167,10 +167,17 @@ async def albums_post(data: AlbumsPostRq):
     if len(await cursor.fetchall()) == 0:
         raise HTTPException(status_code=404, detail={"error": "Wrong ArtistId!"})
     cursor = await app.db_connection.execute(
-        "INSERT INTO artists (title, artistid) VALUES(?)", (data.dict()["title"], data.dict()["artist_id"]))
+        "INSERT INTO albums (title, artistid) VALUES(?)", (data.dict()["title"], data.dict()["artist_id"]))
     app.db_connection.commit()
-    new_album_id = cursor.lastrowid
+    app.db_connection.row_factory = RowFactories.default
     cursor = await app.db_connection.execute(
-        f"SELECT * FROM albums WHERE albumid = {new_album_id}")
-    response = Response(content=cursor.fetchone(), status_code=201)
-    return response
+        f"SELECT * FROM albums WHERE albumid = {cursor.lastrowid}")
+    return await cursor.fetchone()
+
+
+@app.get("/albums/{album_id}")
+async def album_id_get(album_id: int):
+    app.db_connection.row_factory = RowFactories.default
+    cursor = await app.db_connection.execute(
+        f"SELECT * FROM albums WHERE albumid = {album_id}")
+    return await cursor.fetchone()
