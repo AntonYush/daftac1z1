@@ -213,8 +213,6 @@ async def customer_put(customer_id: int, data: CustomerPutRq):
 
 @app.get("/sales")
 async def sales_get(category: str = None):
-    if category is None:
-        raise HTTPException(status_code=404, detail={"error": "No category!"})
     if category == "customers":
         cursor = await app.db_connection.execute("""
         SELECT customerid, email, phone, ROUND(SUM(total), 2) as Sum FROM(SELECT * FROM invoices JOIN customers
@@ -228,3 +226,5 @@ async def sales_get(category: str = None):
                          "Phone": line[2],
                          "Sum": line[3]})
         return data
+    else:
+        raise HTTPException(status_code=404, detail={"error": "No category!"})
