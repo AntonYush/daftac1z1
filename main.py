@@ -209,3 +209,22 @@ async def customer_put(customer_id: int, data: CustomerPutRq):
     cursor = await app.db_connection.execute(
         f"SELECT * FROM customers WHERE customerid = ?", (customer_id, ))
     return await cursor.fetchone()
+
+
+@app.get("/sales")
+async def sales_get(category: str = None):
+    if category is None:
+        raise HTTPException(status_code=404, detail={"error": "No category!"})
+    if category == "customers":
+        cursor = await app.db_connection.execute("""
+        SELECT customerid, email, phone, ROUND(SUM(total), 2) as Sum FROM(SELECT * FROM invoices JOIN customers
+        ON customers.customerid = invoices.customerid) GROUP BY customerid ORDER BY sum DESC, customerid ASC
+        """)
+        raw_data = await cursor.fetchall()
+        data = []
+        for line in raw_data:
+            data.append({"CustomerId": line[0],
+                         "Email": line[1],
+                         "Phone": line[2],
+                         "Sum": line[3]})
+        return data
