@@ -226,5 +226,16 @@ async def sales_get(category: str = None):
                          "Phone": line[2],
                          "Sum": line[3]})
         return data
+    elif category == "genres":
+        cursor = await app.db_connection.execute("""
+        SELECT name, COUNT(genreid) AS sum FROM(SELECT * FROM genres JOIN tracks ON tracks.genreid = genres.genreid
+        JOIN invoice_items ON invoice_items.trackid = tracks.trackid) GROUP BY genreid ORDER BY sum DESC, name ASC
+        """)
+        raw_data = await cursor.fetchall()
+        data = []
+        for line in raw_data:
+            data.append({"Name": line[0],
+                         "Sum": line[1]})
+        return data
     else:
         raise HTTPException(status_code=404, detail={"error": "No category!"})
